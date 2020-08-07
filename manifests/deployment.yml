@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: "myakscluster-07f9"
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: "myakscluster-07f9"
+    spec:
+      containers:
+        - name: "myakscluster-07f9"
+          image: "ranjitacr.azurecr.io/myakscluster"
+          ports:
+          - containerPort: 80
