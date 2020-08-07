@@ -2,9 +2,9 @@ trigger:
 - master
 
 variables:
-  dockerRegistryServiceConnection: 'CRSC'
+  dockerRegistryServiceConnection: 'ranjitacr'
   imageRepository: 'azure-vote-front'
-  containerRegistry: 'csacr.azurecr.io'
+  containerRegistry: 'ranjitacr.azurecr.io'
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'csacr5d93-auth'
