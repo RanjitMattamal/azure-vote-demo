@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: ranjitacr.azurecr.io
+        username: ${{ secrets.acr_ranjitacr_username }}
+        password: ${{ secrets.acr_ranjitacr_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ranjitacr.azurecr.io/myakscluster:${{ github.sha }}
+        docker push ranjitacr.azurecr.io/myakscluster:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_myakscluster_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep myakscluster546d | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace myakscluster546d`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: myakscluster546d
+        container-registry-url: ranjitacr.azurecr.io
+        container-registry-username: ${{ secrets.acr_ranjitacr_username }}
+        container-registry-password: ${{ secrets.acr_ranjitacr_password }}
+        secret-name: myaksclusterdockerauth
+       
+    - uses: azure/k8s-deploy@v1
+      with:
+        namespace: myakscluster546d
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          ranjitacr.azurecr.io/myakscluster:${{ github.sha }}
+        imagepullsecrets: |
+          myaksclusterdockerauth
