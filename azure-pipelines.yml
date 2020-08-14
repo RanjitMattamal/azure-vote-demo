@@ -9,7 +9,7 @@ variables:
   tag: '$(Build.BuildId)'
   imagePullSecret: 'csacr5d93-auth'
 
-  # Agent VM image name
+  # Agent VM image name - in myversion branch
   vmImageName: 'ubuntu-latest'
   
 
